@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mac's &amp; PC's Quiz</title>
+<style>
+  :root {
+    --bg: #f6f8fb; --card: #ffffff; --ink: #111827; --muted: #4b5563; --line: #d1d5db;
+    --pc: #2563eb; --pc-soft: #e6eefc; --ok: #16a34a; --ok-soft: #e8f6ed;
+    --bad: #dc2626; --bad-soft: #fceaea; --mac: #ea580c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: Calibri, "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    line-height: 1.45; min-height: 100vh; display: flex; justify-content: center; padding: 24px 16px 48px;
+  }
+  main { width: 100%; max-width: 720px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  h1 { font-size: 1.5rem; margin: 0; letter-spacing: -0.01em; }
+  h1 .pc { color: var(--pc); } h1 .mac { color: var(--mac); }
+  .sub { color: var(--muted); font-size: .95rem; margin: 2px 0 0; }
+  .progress { display: flex; gap: 6px; margin: 0 0 18px; }
+  .dot { flex: 1; height: 8px; border-radius: 99px; background: #dfe4ec; transition: background .25s; }
+  .dot.current { background: var(--pc); }
+  .dot.done { background: var(--ok); }
+  .card { background: var(--card); border-radius: 18px; padding: 24px; box-shadow: 0 2px 14px rgba(17,24,39,.08); }
+  .qnum { display: inline-block; background: var(--pc-soft); color: var(--pc); font-weight: 700; font-size: .85rem; padding: 4px 12px; border-radius: 99px; }
+  h2 { font-size: 1.5rem; margin: 12px 0 18px; line-height: 1.25; }
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; cursor: pointer;
+    font: inherit; font-size: 1.1rem; color: var(--ink); background: #fff; border: 2px solid var(--line);
+    border-radius: 14px; padding: 12px 14px; transition: border-color .15s, background .15s, transform .05s;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--pc); background: #f5f8ff; }
+  .opt:active:not(:disabled) { transform: scale(.995); }
+  .opt:focus-visible { outline: 3px solid #93b4f8; outline-offset: 2px; }
+  .letter { flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--pc-soft); color: var(--pc);
+            display: grid; place-items: center; font-weight: 700; }
+  .opt .mark { margin-left: auto; font-size: 1.4rem; font-weight: 700; }
+  .opt.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.correct .letter { background: var(--ok); color: #fff; }
+  .opt.correct .mark { color: var(--ok); }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .opt.wrong .letter { background: var(--bad); color: #fff; }
+  .opt.wrong .mark { color: var(--bad); }
+  .opt:disabled { cursor: default; }
+  .opt.faded { opacity: .55; }
+  .feedback { margin-top: 18px; border-radius: 14px; padding: 16px 18px; border: 2px solid; display: none; }
+  .feedback.show { display: block; animation: pop .22s ease-out; }
+  .feedback.good { background: var(--ok-soft); border-color: var(--ok); }
+  .feedback.bad { background: var(--bad-soft); border-color: var(--bad); }
+  .fb-head { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1.25rem; }
+  .good .fb-head { color: var(--ok); } .bad .fb-head { color: var(--bad); }
+  .badge { width: 34px; height: 34px; border-radius: 50%; color: #fff; display: grid; place-items: center; font-size: 1.1rem; }
+  .good .badge { background: var(--ok); } .bad .badge { background: var(--bad); }
+  .fb-en { margin: 10px 0 2px; font-size: 1.05rem; }
+  .fb-ua { margin: 0; color: var(--muted); font-size: .98rem; }
+  .actions { display: flex; justify-content: flex-end; margin-top: 14px; }
+  .btn { font: inherit; font-weight: 700; font-size: 1.05rem; color: #fff; background: var(--pc); border: 0; border-radius: 12px;
+         padding: 11px 22px; cursor: pointer; }
+  .btn:hover { filter: brightness(.94); }
+  .btn:focus-visible { outline: 3px solid #93b4f8; outline-offset: 2px; }
+  .btn.ok { background: var(--ok); }
+  .hint { color: var(--muted); font-size: .9rem; margin: 14px 0 0; }
+  .result { text-align: center; padding: 18px 6px 6px; }
+  .big-check { width: 92px; height: 92px; margin: 0 auto 14px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; font-size: 3rem; }
+  .score { font-size: 3rem; font-weight: 800; margin: 6px 0 0; }
+  .result p { margin: 6px 0; }
+  .result .btn { margin-top: 18px; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .feedback.show { animation: none; } }
+  @media (max-width: 480px) { .card { padding: 18px; } h2 { font-size: 1.3rem; } .opt { font-size: 1rem; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1><span class="mac">Mac's</span> &amp; <span class="pc">PC's</span> Quiz</h1>
+      <p class="sub">Information Technology · Career Paths · Book 3, Unit 1</p>
+    </div>
+  </header>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+  <section class="card" id="card" aria-live="polite"></section>
+</main>
+
+<script>
+const QUESTIONS = [
+  { q: "What does “PC” stand for?",
+    opts: ["Personal Computer", "Private Console", "Portable Card"], ok: 0,
+    fb: [
+      ["PC = Personal Computer: a computer designed for one person to use.", "PC – персональний комп'ютер, створений для однієї людини."],
+      ["There is no such computer term. PC stands for Personal Computer.", "Такого терміна немає. PC розшифровується як Personal Computer."],
+      ["A portable card is not a computer. PC means Personal Computer.", "Portable Card – не комп'ютер. PC – це Personal Computer."] ] },
+  { q: "Which company makes Mac computers?",
+    opts: ["Microsoft", "Apple", "Dell"], ok: 1,
+    fb: [
+      ["Microsoft makes Windows and Office, not Macs.", "Microsoft створює Windows та Office, а не Mac."],
+      ["Apple makes Macs – both the hardware and the macOS system.", "Mac виробляє Apple – і обладнання, і систему macOS."],
+      ["Dell makes PCs that run Windows. Only Apple makes Macs.", "Dell виробляє PC на Windows. Mac виробляє лише Apple."] ] },
+  { q: "Which operating system do Macs use?",
+    opts: ["Windows", "Android", "macOS"], ok: 2,
+    fb: [
+      ["Windows runs on PCs. Macs use macOS.", "Windows працює на PC. На Mac встановлена macOS."],
+      ["Android is for phones and tablets, not for Macs.", "Android – для смартфонів і планшетів, а не для Mac."],
+      ["Macs run macOS, Apple's own operating system.", "Mac працює на macOS – операційній системі від Apple."] ] },
+  { q: "How is a PC usually different from a Mac?",
+    opts: ["Many companies make PCs, so there is more choice", "Only one company makes PCs", "PCs can never be upgraded"], ok: 0,
+    fb: [
+      ["Many companies (Dell, HP, Lenovo…) make PCs, so models and prices vary widely.", "PC випускає багато компаній, тому вибір моделей і цін ширший."],
+      ["It is the other way round: only Apple makes Macs, while many companies make PCs.", "Навпаки: Mac виробляє лише Apple, а PC – багато компаній."],
+      ["Most PCs can be upgraded, for example with more memory or a new drive.", "Більшість PC можна оновлювати: додати пам'ять чи змінити диск."] ] },
+  { q: "Which statement is the most accurate?",
+    opts: ["A Mac is always better than a PC", "A PC is always better than a Mac", "The best choice depends on your tasks, budget and software"], ok: 2,
+    fb: [
+      ["For games or some programs a PC may suit you better.", "Mac не завжди кращий: для ігор чи окремих програм може краще підійти PC."],
+      ["For video or music work many people choose a Mac.", "PC теж не завжди кращий: для відео чи музики багато людей обирають Mac."],
+      ["The best computer is the one that fits your tasks, budget and software.", "Найкращий комп'ютер – той, що підходить під ваші завдання, бюджет і програми."] ] },
+];
+
+const card = document.getElementById("card");
+const progress = document.getElementById("progress");
+const LET = ["A", "B", "C"];
+let cur = 0, firstTry = 0, hadMistake = false;
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+
+function drawProgress(finished) {
+  progress.innerHTML = "";
+  QUESTIONS.forEach((_, i) => {
+    const d = el("div", "dot" + (finished || i < cur ? " done" : i === cur ? " current" : ""));
+    progress.appendChild(d);
+  });
+}
+
+function showQuestion() {
+  const Q = QUESTIONS[cur];
+  hadMistake = false;
+  drawProgress(false);
+  card.innerHTML = "";
+  card.appendChild(el("span", "qnum", `Question ${cur + 1} of ${QUESTIONS.length}`));
+  card.appendChild(el("h2", "", Q.q));
+
+  const list = el("div", "opts");
+  list.setAttribute("role", "group");
+  list.setAttribute("aria-label", "Answer options");
+  const buttons = Q.opts.map((text, i) => {
+    const b = el("button", "opt");
+    b.type = "button";
+    b.appendChild(el("span", "letter", LET[i]));
+    b.appendChild(el("span", "", text));
+    b.appendChild(el("span", "mark", ""));
+    b.addEventListener("click", () => choose(i));
+    list.appendChild(b);
+    return b;
+  });
+  card.appendChild(list);
+
+  const fb = el("div", "feedback");
+  fb.setAttribute("role", "status");
+  card.appendChild(fb);
+  card.appendChild(el("p", "hint", "Choose an answer. If it is wrong, you can try again. · Оберіть відповідь; якщо неправильно – спробуйте ще раз."));
+
+  function choose(i) {
+    const right = i === Q.ok;
+    const b = buttons[i];
+    fb.className = "feedback show " + (right ? "good" : "bad");
+    fb.innerHTML = "";
+    const head = el("div", "fb-head");
+    head.appendChild(el("span", "badge", right ? "✓" : "✕"));
+    head.appendChild(el("span", "", right ? "Correct! · Правильно!" : "Not quite · Неправильно"));
+    fb.appendChild(head);
+    fb.appendChild(el("p", "fb-en", Q.fb[i][0]));
+    fb.appendChild(el("p", "fb-ua", Q.fb[i][1]));
+    if (right) {
+      b.classList.add("correct"); b.querySelector(".mark").textContent = "✓";
+      if (!hadMistake) firstTry++;
+      buttons.forEach((x) => { x.disabled = true; if (x !== b) x.classList.add("faded"); });
+      const act = el("div", "actions");
+      const next = el("button", "btn ok", cur < QUESTIONS.length - 1 ? "Next question →" : "See result →");
+      next.type = "button";
+      next.addEventListener("click", () => { cur++; cur < QUESTIONS.length ? showQuestion() : showResult(); });
+      act.appendChild(next); fb.appendChild(act);
+      next.focus({ preventScroll: true });
+    } else {
+      hadMistake = true;
+      b.classList.add("wrong"); b.querySelector(".mark").textContent = "✕"; b.disabled = true;
+    }
+  }
+}
+
+function showResult() {
+  drawProgress(true);
+  card.innerHTML = "";
+  const box = el("div", "result");
+  box.appendChild(el("div", "big-check", "✓"));
+  box.appendChild(el("h2", "", "Quiz complete! · Тест пройдено!"));
+  box.appendChild(el("div", "score", `${firstTry} / ${QUESTIONS.length}`));
+  box.appendChild(el("p", "", "correct on the first try"));
+  box.appendChild(el("p", "fb-ua", "правильно з першої спроби"));
+  const again = el("button", "btn", "Try again · Ще раз");
+  again.type = "button";
+  again.addEventListener("click", () => { cur = 0; firstTry = 0; showQuestion(); });
+  box.appendChild(again);
+  card.appendChild(box);
+}
+
+showQuestion();
+</script>
+</body>
+</html>
